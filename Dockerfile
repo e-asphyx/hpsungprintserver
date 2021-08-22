@@ -44,12 +44,7 @@ ARG USER=printer
 ARG PASSWORD=printer
 RUN useradd -g users -G lp,lpadmin -d /etc/cups -M -s /bin/false -p "$(openssl passwd -6 ${PASSWORD})" "${USER}"
 
-RUN /usr/sbin/cupsd && \
-    while [ ! -f /var/run/cups/cupsd.pid ]; do sleep 1; done && \
-    cupsctl --remote-admin --remote-any --share-printers \
-    "ServerAlias=*" \
-    "DefaultEncryption=Never" && \
-    PID=$(cat /var/run/cups/cupsd.pid) && kill ${PID} && ( wait ${PID} || true )
+ADD cupsd.conf /etc/cups
 
 EXPOSE 631/tcp
 
